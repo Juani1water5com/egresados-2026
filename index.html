@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="img/escudo-qhs.png">
+<title>Egresados QHS 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Figtree:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  /* Layout: a single centered "boarding pass" — crest, name, giant countdown, trip details stub. School-green single theme. */
+  :root {
+    --sky: #0b3d24;
+    --sky-2: #146b3e;
+    --ink: #eef2f8;
+    --muted: #a9cdb6;
+    --gold: #f2c14e;
+    --line: rgba(238, 242, 248, 0.14);
+    --display: "Bricolage Grotesque", "Arial Black", system-ui, sans-serif;
+    --body: "Figtree", system-ui, -apple-system, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    color-scheme: dark;
+  }
+  html, body { min-height: 100%; }
+  body {
+    background: radial-gradient(120% 80% at 50% 0%, var(--sky-2), var(--sky) 70%) fixed, var(--sky);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    padding-inline: 16px;
+    padding-block: 32px 48px;
+    position: relative;
+    overflow-x: hidden;
+  }
+  #stars { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+  main {
+    position: relative; z-index: 1;
+    max-width: 760px; margin: 0 auto;
+    display: flex; flex-direction: column; align-items: center; gap: 28px;
+    text-align: center;
+  }
+
+  .crest { width: 150px; max-width: 100%; }
+  .crest img { display: block; width: 100%; height: auto; filter: drop-shadow(0 6px 18px rgba(0,0,0,0.35)); }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--gold);
+  }
+  h1 {
+    font-family: var(--display); font-weight: 800;
+    font-size: clamp(2.2rem, 7vw, 4rem); line-height: 0.95;
+    margin: 8px 0 0; text-wrap: balance; letter-spacing: -0.02em;
+  }
+  .sub { color: var(--muted); margin: 10px 0 0; font-size: 1.05rem; }
+
+  .clock {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px; width: 100%;
+  }
+  .unit {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding-block: 18px 14px;
+    border-top: 2px solid var(--gold);
+    background: linear-gradient(180deg, rgba(242,193,78,0.08), transparent 70%);
+  }
+  .num {
+    font-family: var(--display); font-weight: 800;
+    font-size: clamp(2.4rem, 10vw, 5.2rem); line-height: 1;
+    font-variant-numeric: tabular-nums; letter-spacing: -0.03em;
+  }
+  .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+
+  .ticket {
+    width: 100%;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    border: 1px dashed var(--line); border-radius: 14px;
+    text-align: left;
+  }
+  .ticket > div { padding: 14px 16px; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .ticket > div + div { border-left: 1px dashed var(--line); }
+  .ticket dt { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .ticket dd { margin: 0; font-weight: 600; font-size: 1rem; }
+
+  .arrived { font-family: var(--display); font-size: clamp(2rem, 8vw, 3.6rem); color: var(--gold); margin: 0; }
+
+  .tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+  .btn {
+    font: 600 14px var(--body); color: var(--ink);
+    background: transparent; border: 1px solid var(--line); border-radius: 999px;
+    padding: 8px 16px; cursor: pointer;
+  }
+  .btn:hover { border-color: var(--gold); color: var(--gold); }
+  .btn:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .edit { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
+  .edit input {
+    font: 500 14px var(--mono); color: var(--ink); background: rgba(255,255,255,0.05);
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+  }
+  .hint { color: var(--muted); font-size: 13px; margin: 0; }
+
+  .game { width: 100%; display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+  .game-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px; text-align: left; }
+  .game h2 { font-family: var(--display); font-weight: 800; font-size: 1.6rem; margin: 0; letter-spacing: -0.01em; }
+  .scores { display: flex; gap: 16px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .scores b { color: var(--gold); font-size: 16px; font-variant-numeric: tabular-nums; margin-left: 4px; }
+  #game {
+    display: block; width: 100%; max-width: 100%; aspect-ratio: 16 / 9;
+    border-radius: 14px; border: 1px solid var(--line);
+    cursor: pointer; touch-action: manipulation;
+  }
+  #game:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  .game-hint { margin: 0; color: var(--muted); font-size: 14px; }
+  kbd { font-family: var(--mono); font-size: 12px; border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+
+  @media (max-width: 520px) {
+    .clock { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ticket { grid-template-columns: 1fr; }
+    .ticket > div + div { border-left: 0; border-top: 1px dashed var(--line); }
+  }
+  @media (prefers-reduced-motion: reduce) { #stars { display: none; } }
+</style>
+</head>
+<body>
+
+<canvas id="stars" aria-hidden="true"></canvas>
+<main>
+  <div class="crest"><img src="img/escudo-qhs.png" alt="Escudo del Quilmes High School"></div>
+
+  <div>
+    <div class="eyebrow">Quilmes High School · Promo 2026</div>
+    <h1>Viaje de Egresados</h1>
+    <p class="sub" id="sub">Falta cada vez menos.</p>
+  </div>
+
+  <div class="clock" id="clock" aria-live="polite">
+    <div class="unit"><span class="num" id="d">--</span><span class="lbl">Días</span></div>
+    <div class="unit"><span class="num" id="h">--</span><span class="lbl">Horas</span></div>
+    <div class="unit"><span class="num" id="m">--</span><span class="lbl">Minutos</span></div>
+    <div class="unit"><span class="num" id="s">--</span><span class="lbl">Segundos</span></div>
+  </div>
+  <p class="arrived" id="arrived" hidden>¡Nos vamos! 🎉</p>
+
+  <dl class="ticket">
+    <div><dt>Salida</dt><dd id="when">—</dd></div>
+    <div><dt>Destino</dt><dd id="dest">Córdoba</dd></div>
+    <div><dt>Pasajeros</dt><dd>Promo 2026 QHS</dd></div>
+  </dl>
+
+  <section class="game" aria-label="Minijuego del avión">
+    <div class="game-head">
+      <h2>Vuelo a Córdoba</h2>
+      <div class="scores"><span>Puntos <b id="score">0</b></span><span>Récord <b id="best">0</b></span></div>
+    </div>
+    <canvas id="game" tabindex="0" aria-label="Juego: tocá o apretá espacio para que el avión suba"></canvas>
+    <p class="game-hint">Tocá la pantalla o apretá <kbd>espacio</kbd> para subir. Esquivá las nubes y las sierras.</p>
+  </section>
+
+</main>
+
+<script>
+  // Fecha y destino del viaje
+  const TRIP_DATE = new Date("2026-12-05T08:00");
+  const target = TRIP_DATE;
+  const fmt = new Intl.DateTimeFormat("es-AR", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+  document.getElementById("when").textContent = fmt.format(target);
+
+  const pad = n => String(n).padStart(2, "0");
+  function tick() {
+    const diff = target - new Date();
+    const clock = document.getElementById("clock");
+    const arrived = document.getElementById("arrived");
+    if (diff <= 0) {
+      clock.hidden = true; arrived.hidden = false;
+      document.getElementById("sub").textContent = "Llegó el día.";
+      return;
+    }
+    clock.hidden = false; arrived.hidden = true;
+    const sec = Math.floor(diff / 1000);
+    document.getElementById("d").textContent = Math.floor(sec / 86400);
+    document.getElementById("h").textContent = pad(Math.floor(sec % 86400 / 3600));
+    document.getElementById("m").textContent = pad(Math.floor(sec % 3600 / 60));
+    document.getElementById("s").textContent = pad(sec % 60);
+    const days = Math.floor(sec / 86400);
+    document.getElementById("sub").textContent =
+      days === 0 ? "¡Es hoy! Preparen las valijas." :
+      days < 7 ? "Última semana. Armen la valija." :
+      days < 30 ? "Menos de un mes. Ya casi." : "Falta cada vez menos.";
+  }
+  tick(); setInterval(tick, 1000);
+
+  // Minijuego del avión
+  (function () {
+    const cv = document.getElementById("game"), g = cv.getContext("2d");
+    const W = 640, H = 360;
+    const C = { sky1: "#1d7a4a", sky2: "#0e4a2b", gold: "#f2c14e", ink: "#eef2f8", hill: "#08301b", hill2: "#0b3d24", cloud: "rgba(238,242,248,0.92)" };
+    const scoreEl = document.getElementById("score"), bestEl = document.getElementById("best");
+    let best = 0;
+    try { best = +localStorage.getItem("qhs-plane-best") || 0; } catch (e) {}
+    bestEl.textContent = best;
+
+    function fit() {
+      const r = devicePixelRatio || 1;
+      cv.width = W * r; cv.height = H * r;
+      g.setTransform(r, 0, 0, r, 0, 0);
+    }
+    fit();
+
+    let state, plane, obs, score, t, last, speed, spawnIn;
+    function reset() {
+      state = "ready"; plane = { x: 120, y: H / 2, vy: 0 };
+      obs = []; score = 0; t = 0; speed = 170; spawnIn = 0.6;
+      scoreEl.textContent = 0;
+    }
+    reset();
+
+    function flap() {
+      if (state === "over") { reset(); }
+      if (state === "ready") state = "play";
+      plane.vy = -260;
+    }
+    cv.addEventListener("pointerdown", e => { e.preventDefault(); cv.focus({ preventScroll: true }); flap(); });
+    cv.addEventListener("keydown", e => {
+      if (e.code === "Space" || e.code === "ArrowUp" || e.code === "Enter") { e.preventDefault(); flap(); }
+    });
+
+    function spawn() {
+      const gap = Math.max(120, 170 - score * 2);
+      const top = 40 + Math.random() * (H - gap - 110);
+      obs.push({ x: W + 40, top, gap, w: 70, passed: false });
+    }
+
+    function update(dt) {
+      t += dt;
+      if (state === "ready") { plane.y = H / 2 + Math.sin(t * 3) * 8; return; }
+      if (state !== "play") return;
+      plane.vy += 700 * dt; plane.y += plane.vy * dt;
+      speed = 170 + score * 4;
+      spawnIn -= dt;
+      if (spawnIn <= 0) { spawn(); spawnIn = 1.45; }
+      for (const o of obs) {
+        o.x -= speed * dt;
+        if (!o.passed && o.x + o.w < plane.x) { o.passed = true; score++; scoreEl.textContent = score; }
+        // colisión con caja reducida del avión
+        const px = plane.x - 18, py = plane.y - 8, pw = 40, ph = 16;
+        if (px + pw > o.x + 6 && px < o.x + o.w - 6 && (py < o.top || py + ph > o.top + o.gap)) end();
+      }
+      obs = obs.filter(o => o.x > -100);
+      if (plane.y > H - 14 || plane.y < 8) end();
+    }
+
+    function end() {
+      if (state !== "play") return;
+      state = "over";
+      if (score > best) {
+        best = score; bestEl.textContent = best;
+        try { localStorage.setItem("qhs-plane-best", best); } catch (e) {}
+      }
+    }
+
+    function cloud(x, y, w, h) {
+      g.fillStyle = C.cloud;
+      g.beginPath(); g.roundRect(x, y, w, h, 18); g.fill();
+      g.beginPath(); g.arc(x + w * 0.3, y + h, 16, 0, Math.PI * 2); g.arc(x + w * 0.7, y + h, 14, 0, Math.PI * 2); g.fill();
+    }
+    function sierra(x, y, w) {
+      g.fillStyle = C.hill;
+      g.beginPath(); g.moveTo(x - 8, H); g.lineTo(x - 8, y + 18); g.lineTo(x + w * 0.35, y); g.lineTo(x + w * 0.6, y + 14); g.lineTo(x + w * 0.8, y + 4); g.lineTo(x + w + 8, y + 22); g.lineTo(x + w + 8, H); g.closePath(); g.fill();
+      g.strokeStyle = C.gold; g.lineWidth = 2;
+      g.beginPath(); g.moveTo(x - 8, y + 18); g.lineTo(x + w * 0.35, y); g.lineTo(x + w * 0.6, y + 14); g.lineTo(x + w * 0.8, y + 4); g.lineTo(x + w + 8, y + 22); g.stroke();
+    }
+    function drawPlane(x, y, tilt) {
+      g.save(); g.translate(x, y); g.rotate(tilt);
+      g.fillStyle = C.ink;
+      g.beginPath(); g.ellipse(0, 0, 24, 7, 0, 0, Math.PI * 2); g.fill();          // fuselaje
+      g.beginPath(); g.moveTo(-4, 0); g.lineTo(-14, 16); g.lineTo(-6, 16); g.lineTo(8, 0); g.fill(); // ala
+      g.beginPath(); g.moveTo(-18, -2); g.lineTo(-26, -14); g.lineTo(-20, -14); g.lineTo(-12, -2); g.fill(); // cola
+      g.fillStyle = C.gold;
+      g.fillRect(-12, -2, 22, 2);                                                    // franja
+      g.fillStyle = C.sky2;
+      g.beginPath(); g.ellipse(16, -2, 4, 3, 0, 0, Math.PI * 2); g.fill();           // cabina
+      g.restore();
+    }
+    function label(text, size, y, color) {
+      g.fillStyle = color; g.textAlign = "center";
+      g.font = `800 ${size}px "Bricolage Grotesque", "Arial Black", sans-serif`;
+      g.fillText(text, W / 2, y);
+    }
+
+    function draw() {
+      const sky = g.createLinearGradient(0, 0, 0, H);
+      sky.addColorStop(0, C.sky1); sky.addColorStop(1, C.sky2);
+      g.fillStyle = sky; g.fillRect(0, 0, W, H);
+      // sierras de fondo con parallax
+      g.fillStyle = C.hill2;
+      g.beginPath(); g.moveTo(0, H);
+      for (let i = 0; i <= 16; i++) {
+        const x = i * 44 - (t * 30 % 44);
+        g.lineTo(x, H - 40 - (i % 3) * 14 - (i % 2) * 10);
+      }
+      g.lineTo(W, H); g.fill();
+
+      for (const o of obs) {
+        cloud(o.x, -10, o.w, o.top + 10 - 16);
+        sierra(o.x, o.top + o.gap, o.w);
+      }
+      drawPlane(plane.x, plane.y, state === "ready" ? 0 : Math.max(-0.5, Math.min(0.7, plane.vy / 500)));
+
+      if (state === "ready") {
+        label("Tocá para despegar", 30, H / 2 - 50, C.ink);
+        g.font = '500 14px "JetBrains Mono", monospace'; g.fillStyle = C.gold;
+        g.fillText("DESTINO: CÓRDOBA", W / 2, H / 2 + 60);
+      } else if (state === "over") {
+        g.fillStyle = "rgba(8,48,27,0.6)"; g.fillRect(0, 0, W, H);
+        label("¡Turbulencia!", 40, H / 2 - 20, C.gold);
+        label(`${score} ${score === 1 ? "punto" : "puntos"} · tocá para volver a volar`, 18, H / 2 + 18, C.ink);
+      }
+    }
+
+    function loop(now) {
+      const dt = Math.min(0.033, (now - (last || now)) / 1000); last = now;
+      update(dt); draw();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  })();
+
+  // Cielo estrellado
+  (function () {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const c = document.getElementById("stars"), ctx = c.getContext("2d");
+    let stars = [];
+    function size() {
+      c.width = innerWidth * devicePixelRatio; c.height = innerHeight * devicePixelRatio;
+      stars = Array.from({ length: 140 }, () => ({ x: Math.random() * c.width, y: Math.random() * c.height, r: Math.random() * 1.4 * devicePixelRatio + 0.3, p: Math.random() * Math.PI * 2 }));
+    }
+    function draw(t) {
+      ctx.clearRect(0, 0, c.width, c.height);
+      for (const s of stars) {
+        ctx.globalAlpha = 0.35 + 0.45 * Math.sin(t / 900 + s.p) ** 2;
+        ctx.fillStyle = "#eef2f8";
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+    size(); addEventListener("resize", size); requestAnimationFrame(draw);
+  })();
+</script>
+</body>
+</html>
